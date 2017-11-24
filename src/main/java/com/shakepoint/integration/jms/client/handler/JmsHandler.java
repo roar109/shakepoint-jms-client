@@ -45,7 +45,7 @@ public class JmsHandler {
 
 					MessageProducer oMessageProducer = session.createProducer(destination);
 					TextMessage textMessage = session.createTextMessage();
-					textMessage.setText("Hello from the other side " + System.currentTimeMillis());
+					textMessage.setText(message);
 					oMessageProducer.send(textMessage);
 				} finally {
 					if (session != null) {
