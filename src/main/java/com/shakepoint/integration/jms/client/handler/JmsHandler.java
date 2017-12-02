@@ -58,11 +58,18 @@ public class JmsHandler {
 				}
 			}
 		} catch (Exception e) {
-			log.error(e.getMessage(), e);
+			if(log != null){
+				log.error(e.getMessage(), e);
+			}
 		}
 	}
 
 	public void setLog(Logger log) {
 		this.log = log;
 	}
+
+	public void setConnectionFactory(ConnectionFactory connectionFactory) {
+		this.connectionFactory = connectionFactory;
+	}
+	
 }
