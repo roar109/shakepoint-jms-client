@@ -9,67 +9,105 @@ import javax.jms.TextMessage;
 
 import org.apache.log4j.Logger;
 
+import java.util.Map;
+
 /**
- * TODO Check connection pool 
- *
+ * TODO Check connection pool
  */
 public class JmsHandler {
 
-	private ConnectionFactory connectionFactory;
+    private ConnectionFactory connectionFactory;
 
-	private Logger log;
+    private static final String MESSAGE_TYPE = "com.shakepoint.jms.messageType";
 
-	//Intended for CDI Proxy use only!
-	public JmsHandler() {
-	}
+    private Logger log;
 
-	/**s
-	 * For use on CDI produces method
-	 */
-	public JmsHandler(final ConnectionFactory connectionFactory, final Logger log) {
-		this.connectionFactory = connectionFactory;
-		this.log = log;
-	}
+    //Intended for CDI Proxy use only!
+    public JmsHandler() {
+    }
 
-	public void send(final String queueName, final String message) {
-		try {
-			Connection conn = null;
-			try {
-				conn = connectionFactory.createConnection();
-				conn.start();
+    /**
+     * s
+     * For use on CDI produces method
+     */
+    public JmsHandler(final ConnectionFactory connectionFactory, final Logger log) {
+        this.connectionFactory = connectionFactory;
+        this.log = log;
+    }
 
-				Session session = null;
-				try {
-					session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-					Destination destination = session.createQueue(queueName);
+    public void send(final String queueName, final String message) {
+        try {
+            Connection conn = null;
+            try {
+                conn = connectionFactory.createConnection();
+                conn.start();
 
-					MessageProducer oMessageProducer = session.createProducer(destination);
-					TextMessage textMessage = session.createTextMessage();
-					textMessage.setText(message);
-					oMessageProducer.send(textMessage);
-				} finally {
-					if (session != null) {
-						session.close();
-					}
-				}
-			} finally {
-				if (conn != null) {
-					conn.close();
-				}
-			}
-		} catch (Exception e) {
-			if(log != null){
-				log.error(e.getMessage(), e);
-			}
-		}
-	}
+                Session session = null;
+                try {
+                    session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                    Destination destination = session.createQueue(queueName);
 
-	public void setLog(Logger log) {
-		this.log = log;
-	}
+                    MessageProducer oMessageProducer = session.createProducer(destination);
+                    TextMessage textMessage = session.createTextMessage();
+                    textMessage.setText(message);
+                    oMessageProducer.send(textMessage);
+                } finally {
+                    if (session != null) {
+                        session.close();
+                    }
+                }
+            } finally {
+                if (conn != null) {
+                    conn.close();
+                }
+            }
+        } catch (Exception e) {
+            if (log != null) {
+                log.error(e.getMessage(), e);
+            }
+        }
+    }
 
-	public void setConnectionFactory(ConnectionFactory connectionFactory) {
-		this.connectionFactory = connectionFactory;
-	}
-	
+    public void sendWithMessageType(String queueName, String message, String messageType) {
+        try {
+            Connection conn = null;
+            try {
+                conn = connectionFactory.createConnection();
+                conn.start();
+
+                Session session = null;
+                try {
+                    session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                    Destination destination = session.createQueue(queueName);
+
+                    MessageProducer oMessageProducer = session.createProducer(destination);
+                    TextMessage textMessage = session.createTextMessage();
+                    textMessage.setStringProperty(MESSAGE_TYPE, messageType);
+                    textMessage.setText(message);
+                    oMessageProducer.send(textMessage);
+                } finally {
+                    if (session != null) {
+                        session.close();
+                    }
+                }
+            } finally {
+                if (conn != null) {
+                    conn.close();
+                }
+            }
+        } catch (Exception e) {
+            if (log != null) {
+                log.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public void setLog(Logger log) {
+        this.log = log;
+    }
+
+    public void setConnectionFactory(ConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
+    }
+
 }
